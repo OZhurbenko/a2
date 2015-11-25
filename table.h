@@ -44,7 +44,7 @@ SimpleTable<TYPE>::SimpleTable(const SimpleTable<TYPE>& other){
 	max = other.max;
 	table_size = other.table_size;
 
-	for (int i=0; i<table_size; i++){
+	for (int i=0; i<=table_size; i++){
 		data[i] = other.data[i];
 	}
 }
@@ -54,29 +54,23 @@ bool SimpleTable<TYPE>::update(const char* key, const TYPE& value){
 	if (table_size == max){
 		max = max*2;
 		std::pair<std::string, TYPE>* tmp = new std::pair<std::string, TYPE>[max];
-		for (int i=0; i<table_size; i++){
+		for (int i=0; i<=table_size; i++){
 			tmp[i] = data[i];
 		}
 		delete [] data;
 		data = new std::pair<std::string, TYPE>[max];
-		//for (int i=0; i<table_size; i++){
-		//	data[i] = other.data[i];
-		//}
 		data = tmp;
 	}
 	bool uporin = false;
 	std::string k(key);
-	if (table_size ==0){
-		data[0] = make_pair(k, value);
-		table_size =1;
-	}
-	for (int i=0; i<table_size && uporin == false; i++){
+	for (int i=0; i<=table_size && uporin == false; i++){
+		
 		if (data[i].first == k){
 			data[i].second = value;
 			uporin = true;
 		}
-		else if (data[i].first > k || i == table_size-1){
-			for (int j=table_size+1; j>i; j--){
+		else if (data[i].first > k || i == table_size){
+			for (int j=table_size; j>i; j--){
 				data[j] = data[j-1];
 			}
 			data[i] = std::make_pair(k, value);
@@ -93,13 +87,12 @@ bool SimpleTable<TYPE>::remove(const char* key){
 	
 	bool removed = false;
 	std::string k(key);
-	for (int i=0; i<table_size && removed == false; i++){
-		if (data[i].first == k){ 
-			for (int j=i; j<table_size; j++){
+	for (int i=0; i<=table_size && removed == false; i++){
+		if (data[i].first == k){
+			for (int j=i; j<=table_size; j++){
 				data[j] = data[j+1];
 			}
 			table_size--;
-//			data[table_size] = nullptr;
 			removed = true;
 		}
 	}
@@ -110,7 +103,7 @@ template <class TYPE>
 bool SimpleTable<TYPE>::find(const char* key, TYPE& value){
 	bool found = false;
 	std::string k(key);
-	for (int i=0; i<table_size && found == false; i++){
+	for (int i=0; i<=table_size && found == false; i++){
 		if (data[i].first == k){
 			found = true;
 			value = data[i].second;
@@ -131,7 +124,7 @@ const SimpleTable<TYPE>& SimpleTable<TYPE>::operator=(const SimpleTable<TYPE>& o
 		table_size = other.table_size;
 		delete [] data;
 		data = new std::pair<std::string, TYPE>[max];
-		for (int i=0; i<table_size; i++){
+		for (int i=0; i<=table_size; i++){
 			data[i] = other.data[i];
 		}
 	}
