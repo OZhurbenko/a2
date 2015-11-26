@@ -1,6 +1,7 @@
 #include <string>
 #include <utility>
 #include <iostream>
+#include "linkedlist.h"
 
 template <class TYPE>
 class Table{
@@ -103,6 +104,7 @@ template <class TYPE>
 bool SimpleTable<TYPE>::find(const char* key, TYPE& value){
 	bool found = false;
 	std::string k(key);
+	
 	for (int i=0; i<=table_size && found == false; i++){
 		if (data[i].first == k){
 			found = true;
@@ -140,6 +142,10 @@ SimpleTable<TYPE>::~SimpleTable(){
 template <class TYPE>
 class HashTable:public Table<TYPE>{
 
+	LinkedList<TYPE>* data;
+	int max;
+	int tablesize;
+
 public:
 	HashTable(int maxExpected);
 	HashTable(const HashTable& other);
@@ -154,41 +160,108 @@ public:
 */
 template <class TYPE>
 HashTable<TYPE>::HashTable(int maxExpected): Table<TYPE>(){
-
+	data = new LinkedList<TYPE>[maxExpected];
+	max = maxExpected;
+	tablesize =0;
 }
 
 template <class TYPE>
 HashTable<TYPE>::HashTable(const HashTable<TYPE>& other){
-
+	data = new LinkedList<TYPE>[other.max];
+	
+	//data = other.data;
+	max = other.max;
+	for (int i=0; i<max; i++){
+		data[i] = other.data[i];
+	}		
+	tablesize=other.tablesize;
+	
 }
 
 template <class TYPE>
 bool HashTable<TYPE>::update(const char* key, const TYPE& value){
-	return true;
+	bool uporin = false;
+
+	if (tablesize == max){
+		std::cout<<"HERE"<<std::endl;
+//		max = max*1.5;
+//		LinkedList<TYPE>* tmp;
+//		tmp  = new LinkedList<TYPE>[max];
+//		for (int i=0; i<tablesize; i++){
+//			tmp[i] = data[i];
+//			//delete data[i]
+//		}
+	//	delete [] data;
+	//	data = new LinkedList<TYPE>[max];
+	//	data = tmp;
+	
+	}
+	std::string k(key);
+	std::hash<std::string> hashfn;
+	std::size_t hashvalue = hashfn(k);
+	hashvalue = hashvalue%10000;
+	uporin = data[hashvalue].insert(k, value);
+	tablesize++;
+
+	return uporin;
 }
 
 template <class TYPE>
 bool HashTable<TYPE>::remove(const char* key){
-	return true;
+	bool found = false;
+	std::string k(key);
+	std::hash<std::string> hashfn;
+	std::size_t hashvalue = hashfn(k);
+	hashvalue = hashvalue%10000;
+		
+	auto temp = data[hashvalue].find(k, found);
+	
+	if (found == true){
+		data[hashvalue].erase(temp);
+		return true;
+	}
+	return false;
+	
+
+
 }
 
 template <class TYPE>
 bool HashTable<TYPE>::find(const char* key, TYPE& value){
-	return true;
+	bool found = false;	
+	std::string k(key);	
+	std::hash<std::string> hashfn;
+	std::size_t hashvalue = hashfn(k);
+	hashvalue = hashvalue%10000;
+	
+	auto temp = (data[hashvalue].find(k, found));
+	if (found == true)
+		value = temp.cur_->value_;
+	return found;
 }
 
 template<class TYPE>
 int HashTable<TYPE>::numRecords(){
-return 1;
+	return tablesize;
 }
 
 template <class TYPE>
 const HashTable<TYPE>& HashTable<TYPE>::operator=(const HashTable<TYPE>& other){
+	if (this != &other){
+		delete [] data;
+		data = new LinkedList<TYPE>[other.max];
+	
+		max = other.max;
+		for (int i=0; i<max; i++){
+			data[i] = other.data[i];
+		}		
+		tablesize=other.tablesize;
+	}
 	return *this;
-
 }
+	
 template <class TYPE>
 HashTable<TYPE>::~HashTable(){
-
+	delete [] data;
 }
 
